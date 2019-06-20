@@ -65,6 +65,42 @@ namespace StoreMembershipApi
         }
 
         /// <summary>
+        /// This method receives a storeMembershipnumber from the policy
+        /// orchestration step and returns a 409 Conflict response if the
+        /// store membership number is not valid (not a multiple of 5), and
+        /// a 200 Ok response containing the member's membership date if the
+        /// store membership number is valid.
+        /// </summary>
+        /// <param name="request">
+        /// Passed from the policy orchestration step, contains a
+        /// storeMembershipNumber.
+        /// </param>
+        /// <returns>
+        /// HTTP 200 Ok on success with an obtained membership date. HTTP 409
+        /// Conflict if provided an invalid store membership number.
+        /// </returns>
+        [FunctionName("membershipdate")]
+        public async Task<IActionResult> GetMembershipDate(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = null)]  MembershipRequest request)
+        {
+            if (!IsStoreMembershipNumberValid(request.StoreMembershipNumber))
+            {
+                return GenerateErrorMessageWithMessage(
+                    "Store membership number is not valid, it must be a " +
+                    "multiple of 5!");
+            }
+
+            var membershipDate = ObtainStoreMembershipDate();
+            return new OkObjectResult(new MembershipDateResponseContent
+            {
+                Version = "1.0.0",
+                Status = (int)HttpStatusCode.OK,
+                UserMessage = "Membership date located successfully.",
+                StoreMembershipDate = membershipDate.ToString("d")
+            });
+        }
+
+        /// <summary>
         /// Validates a provided store membership number by using the
         /// modulus operator (see more <see href="https://docs.microsoft.com/en-us/dotnet/csharp/languagereference/operators/remainder-operator">here</see>)
         /// to determine if the provided store membership number is a
@@ -85,6 +121,21 @@ namespace StoreMembershipApi
                 return false;
             }
             return true;
+        }
+
+        /// <summary>
+        /// Generates a date within the last 90 days to return as the store
+        /// membership number for a member. In a production application you'd
+        /// likely contact a database here to get a real membership date for a
+        /// member.
+        /// </summary>
+        /// <returns>A DateTime representing the store membership date for amember.</returns>
+        private static DateTime ObtainStoreMembershipDate()
+        {
+            var random = new Random();
+            var daysOffOfToday = random.Next(0, 90);
+            var randomDate = DateTime.Now.AddDays(-daysOffOfToday);
+            return randomDate;
         }
     }
 }
