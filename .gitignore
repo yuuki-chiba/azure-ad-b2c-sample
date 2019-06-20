@@ -1,0 +1,7 @@
+﻿################################################################################
+# この .gitignore ファイルは Microsoft(R) Visual Studio によって自動的に作成されました。
+################################################################################
+
+/active-directory-b2c-custom-policy-starterpack-master
+/active-directory-b2c-training-course
+/module6-StoreMembershipApi/Properties/PublishProfiles/iw-poc-b2c-storemembershipapi - Zip 配置.pubxml
