@@ -22,6 +22,8 @@ namespace StoreMembershipApi
         {
             log.LogInformation("C# HTTP trigger function processed a request.");
 
+            log.LogInformation($"request: {JsonConvert.SerializeObject(request)}");
+
             if (!IsStoreMembershipNumberValid(
                 request.StoreMembershipNumber))
             {
