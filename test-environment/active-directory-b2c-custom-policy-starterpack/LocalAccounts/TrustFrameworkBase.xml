@@ -288,6 +288,17 @@
         <UserInputType>TextBox</UserInputType>
       </ClaimType>
 
+      <!-- Added the line(s) referring the following URL
+            https://docs.microsoft.com/ja-jp/azure/active-directory-b2c/active-directory-b2c-create-custom-attributes-profile-edit-custom#use-the-new-extension-property-or-custom-attribute-in-a-user-journey
+        -->
+      <!-- Add the extension attribute -->
+      <ClaimType Id="extension_attribute">
+        <DisplayName>Extension Attribute</DisplayName>
+        <DataType>string</DataType>
+        <UserHelpText>Your extension attribute</UserHelpText>
+        <UserInputType>TextBox</UserInputType>
+      </ClaimType>
+    <!-- End of changes -->
     </ClaimsSchema>
 
     <ClaimsTransformations>
@@ -453,6 +464,16 @@
           <DisplayName>Azure Active Directory</DisplayName>
           <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.AzureActiveDirectoryProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
 
+          <!-- Added the line(s) referring the following URL
+                https://docs.microsoft.com/ja-jp/azure/active-directory-b2c/active-directory-b2c-create-custom-attributes-profile-edit-custom#modify-your-custom-policy-to-add-the-applicationobjectid
+            -->
+          <!-- Provide objectId and appId before using extension properties. -->
+          <Metadata>
+            <Item Key="ApplicationObjectId">insert objectId here</Item>
+            <Item Key="ClientId">insert appId here</Item>
+          </Metadata>
+          <!-- End of changes -->
+
           <CryptographicKeys>
             <Key Id="issuer_secret" StorageReferenceId="B2C_1A_TokenSigningKeyContainer" />
           </CryptographicKeys>
@@ -559,6 +580,13 @@
             <!-- Optional claims -->
             <PersistedClaim ClaimTypeReferenceId="givenName" />
             <PersistedClaim ClaimTypeReferenceId="surname" />
+
+            <!-- Added the line(s) referring the following URL
+                  https://docs.microsoft.com/ja-jp/azure/active-directory-b2c/active-directory-b2c-create-custom-attributes-profile-edit-custom#use-the-new-extension-property-or-custom-attribute-in-a-user-journey
+              -->
+            <!-- Add the extension attribute -->
+            <PersistedClaim ClaimTypeReferenceId="extension_attribute" />
+            <!-- End of changes -->
           </PersistedClaims>
           <IncludeTechnicalProfile ReferenceId="AAD-Common" />
         </TechnicalProfile>
@@ -581,6 +609,13 @@
             <OutputClaim ClaimTypeReferenceId="otherMails" />
             <OutputClaim ClaimTypeReferenceId="givenName" />
             <OutputClaim ClaimTypeReferenceId="surname" />
+
+            <!-- Added the line(s) referring the following URL
+                  https://docs.microsoft.com/ja-jp/azure/active-directory-b2c/active-directory-b2c-create-custom-attributes-profile-edit-custom#use-the-new-extension-property-or-custom-attribute-in-a-user-journey
+              -->
+            <!-- Add the extension attribute -->
+            <OutputClaim ClaimTypeReferenceId="extension_attribute" />
+            <!-- End of changes -->
           </OutputClaims>
           <IncludeTechnicalProfile ReferenceId="AAD-Common" />
         </TechnicalProfile>
@@ -607,6 +642,13 @@
                  ValidationTechnicalProfile referenced below so it can be written to directory after being updateed by the user, i.e. AAD-UserWriteProfileUsingObjectId. -->
             <InputClaim ClaimTypeReferenceId="givenName" />
             <InputClaim ClaimTypeReferenceId="surname" />
+
+            <!-- Added the line(s) referring the following URL
+                  https://docs.microsoft.com/ja-jp/azure/active-directory-b2c/active-directory-b2c-create-custom-attributes-profile-edit-custom#use-the-new-extension-property-or-custom-attribute-in-a-user-journey
+              -->
+            <!-- Add the extension attribute -->
+            <InputClaim ClaimTypeReferenceId="extension_attribute" />
+            <!-- End of changes -->
           </InputClaims>
           <OutputClaims>
             <!-- Required claims -->
@@ -616,6 +658,13 @@
                  ValidationTechnicalProfile referenced below so it can be written to directory after being updateed by the user, i.e. AAD-UserWriteProfileUsingObjectId. -->
             <OutputClaim ClaimTypeReferenceId="givenName" />
             <OutputClaim ClaimTypeReferenceId="surname" />
+
+            <!-- Added the line(s) referring the following URL
+                  https://docs.microsoft.com/ja-jp/azure/active-directory-b2c/active-directory-b2c-create-custom-attributes-profile-edit-custom#use-the-new-extension-property-or-custom-attribute-in-a-user-journey
+              -->
+            <!-- Add the extension attribute -->
+            <OutputClaim ClaimTypeReferenceId="extension_attribute" />
+            <!-- End of changes -->
           </OutputClaims>
           <ValidationTechnicalProfiles>
             <ValidationTechnicalProfile ReferenceId="AAD-UserWriteProfileUsingObjectId" />

@@ -14,15 +14,184 @@
   </BasePolicy>
   <BuildingBlocks>
 
+    <!-- Added the line(s) referring the following URL
+          https://docs.microsoft.com/ja-jp/azure/active-directory-b2c/active-directory-b2c-create-custom-attributes-profile-edit-custom#use-the-new-extension-property-or-custom-attribute-in-a-user-journey
+      -->
+    <!-- Add the claim schema -->
+    <ClaimsSchema>
+      <ClaimType Id="extension_attribute">
+        <DisplayName>Extension Attribute</DisplayName>
+        <DataType>string</DataType>
+        <UserHelpText>Your extension attribute</UserHelpText>
+        <UserInputType>TextBox</UserInputType>
+      </ClaimType>
+    </ClaimsSchema>
+    <!-- End of changes -->
+
+    <!-- Added the line(s) referring the following URL
+          https://docs.microsoft.com/ja-jp/azure/active-directory-b2c/active-directory-b2c-ui-customization-custom#modify-the-extensions-file
+      -->
+    <ContentDefinitions>
+
+      <!-- This content definition is to render an error page that displays unhandled errors. -->
+      <ContentDefinition Id="api.error">
+        <LoadUri>~/tenant/default/exception.cshtml</LoadUri>
+        <RecoveryUri>~/common/default_page_error.html</RecoveryUri>
+        <DataUri>urn:com:microsoft:aad:b2c:elements:globalexception:1.1.0</DataUri>
+        <Metadata>
+          <Item Key="DisplayName">Error page</Item>
+        </Metadata>
+      </ContentDefinition>
+
+      <ContentDefinition Id="api.idpselections">
+        <LoadUri>~/tenant/default/idpSelector.cshtml</LoadUri>
+        <RecoveryUri>~/common/default_page_error.html</RecoveryUri>
+        <DataUri>urn:com:microsoft:aad:b2c:elements:idpselection:1.0.0</DataUri>
+        <Metadata>
+          <Item Key="DisplayName">Idp selection page</Item>
+          <Item Key="language.intro">Sign in</Item>
+        </Metadata>
+      </ContentDefinition>
+
+      <ContentDefinition Id="api.idpselections.signup">
+        <LoadUri>~/tenant/default/idpSelector.cshtml</LoadUri>
+        <RecoveryUri>~/common/default_page_error.html</RecoveryUri>
+        <DataUri>urn:com:microsoft:aad:b2c:elements:idpselection:1.0.0</DataUri>
+        <Metadata>
+          <Item Key="DisplayName">Idp selection page</Item>
+          <Item Key="language.intro">Sign up</Item>
+        </Metadata>
+      </ContentDefinition>
+
+      <ContentDefinition Id="api.signuporsignin">
+        <!-- Change the URI -->
+        <LoadUri>https://your-storage-account.blob.core.windows.net/your-container/customize-ui.html</LoadUri>
+        <!-- End of changes -->
+        <RecoveryUri>~/common/default_page_error.html</RecoveryUri>
+        <DataUri>urn:com:microsoft:aad:b2c:elements:unifiedssp:1.0.0</DataUri>
+        <Metadata>
+          <Item Key="DisplayName">Signin and Signup</Item>
+        </Metadata>
+      </ContentDefinition>
+
+      <ContentDefinition Id="api.selfasserted">
+        <LoadUri>~/tenant/default/selfAsserted.cshtml</LoadUri>
+        <RecoveryUri>~/common/default_page_error.html</RecoveryUri>
+        <DataUri>urn:com:microsoft:aad:b2c:elements:selfasserted:1.1.0</DataUri>
+        <Metadata>
+          <Item Key="DisplayName">Collect information from user page</Item>
+        </Metadata>
+      </ContentDefinition>
+
+      <ContentDefinition Id="api.selfasserted.profileupdate">
+        <LoadUri>~/tenant/default/updateProfile.cshtml</LoadUri>
+        <RecoveryUri>~/common/default_page_error.html</RecoveryUri>
+        <DataUri>urn:com:microsoft:aad:b2c:elements:selfasserted:1.1.0</DataUri>
+        <Metadata>
+          <Item Key="DisplayName">Collect information from user page</Item>
+        </Metadata>
+      </ContentDefinition>
+
+      <ContentDefinition Id="api.localaccountsignup">
+        <LoadUri>~/tenant/default/selfAsserted.cshtml</LoadUri>
+        <RecoveryUri>~/common/default_page_error.html</RecoveryUri>
+        <DataUri>urn:com:microsoft:aad:b2c:elements:selfasserted:1.1.0</DataUri>
+        <Metadata>
+          <Item Key="DisplayName">Local account sign up page</Item>
+        </Metadata>
+      </ContentDefinition>
+
+      <ContentDefinition Id="api.localaccountpasswordreset">
+        <LoadUri>~/tenant/default/selfAsserted.cshtml</LoadUri>
+        <RecoveryUri>~/common/default_page_error.html</RecoveryUri>
+        <DataUri>urn:com:microsoft:aad:b2c:elements:selfasserted:1.1.0</DataUri>
+        <Metadata>
+          <Item Key="DisplayName">Local account change password page</Item>
+        </Metadata>
+      </ContentDefinition>
+
+    </ContentDefinitions>
   </BuildingBlocks>
 
   <ClaimsProviders>
 
+    <ClaimsProvider>
+
+      <!-- Added the line(s) referring the following URL
+            https://docs.microsoft.com/ja-jp/azure/active-directory-b2c/active-directory-b2c-rest-api-validation-custom#step-2-configure-the-restful-api-claims-exchange-as-a-technical-profile-in-your-trustframeworkextensionsxml-file
+            https://docs.microsoft.com/ja-jp/azure/active-directory-b2c/active-directory-b2c-rest-api-step-custom#configure-the-claims-exchange
+        -->
+      <!-- Add the claim provider -->
+      <DisplayName>REST APIs</DisplayName>
+      <TechnicalProfiles>
+        <TechnicalProfile Id="AzureFunctions-CheckExtensionAttributeWebHook">
+          <DisplayName>Check Extension Attribute Web Hook Azure Function</DisplayName>
+          <Protocol
+            Name="Proprietary"
+            Handler="Web.TPEngine.Providers.RestfulProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+          <Metadata>
+            <Item Key="ServiceUrl">https://your-function-app.azurewebsites.net/api/your-function-name</Item>
+            <Item Key="AuthenticationType">None</Item>
+            <Item Key="SendClaimsIn">Body</Item>
+            <Item Key="AllowInsecureAuthInProduction">true</Item>
+          </Metadata>
+          <InputClaims>
+            <InputClaim
+              ClaimTypeReferenceId="signInName"
+              PartnerClaimType="signInName" />
+          </InputClaims>
+          <OutputClaims>
+            <OutputClaim
+              ClaimTypeReferenceId="extension_attribute"
+              PartnerClaimType="extensionAttribute" />
+          </OutputClaims>
+          <UseTechnicalProfileForSessionManagement
+            ReferenceId="SM-Noop" />
+        </TechnicalProfile>
+      </TechnicalProfiles>
+    </ClaimsProvider>
+    <!-- End of changes -->
 
     <ClaimsProvider>
       <DisplayName>Local Account SignIn</DisplayName>
       <TechnicalProfiles>
-         <TechnicalProfile Id="login-NonInteractive">
+
+        <!-- Added the line(s) referring the following URL
+              https://docs.microsoft.com/ja-jp/azure/active-directory-b2c/active-directory-b2c-rest-api-validation-custom#step-2-configure-the-restful-api-claims-exchange-as-a-technical-profile-in-your-trustframeworkextensionsxml-file
+              https://docs.microsoft.com/ja-jp/azure/active-directory-b2c/active-directory-b2c-rest-api-step-custom#configure-the-claims-exchange
+          -->
+        <!-- Add the custom signin -->
+        <!-- This technical profile uses a validation technical profile to authenticate the user. -->
+        <TechnicalProfile Id="My-SelfAsserted-LocalAccountSignin-Email">
+          <DisplayName>Local Account Signin</DisplayName>
+          <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.SelfAssertedAttributeProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+          <Metadata>
+            <Item Key="setting.operatingMode">Email</Item>
+            <Item Key="ContentDefinitionReferenceId">api.signuporsignin</Item>
+            <!-- Added the line(s) referring the following URL
+                  https://docs.microsoft.com/ja-jp/azure/active-directory-b2c/self-asserted-technical-profile#metadata
+              -->
+            <Item Key="setting.showSignupLink">false</Item>
+          </Metadata>
+          <IncludeInSso>false</IncludeInSso>
+          <InputClaims>
+            <InputClaim ClaimTypeReferenceId="signInName" />
+          </InputClaims>
+          <OutputClaims>
+            <OutputClaim ClaimTypeReferenceId="signInName" Required="true" />
+            <OutputClaim ClaimTypeReferenceId="password" Required="true" />
+            <OutputClaim ClaimTypeReferenceId="objectId" />
+            <OutputClaim ClaimTypeReferenceId="authenticationSource" />
+            <OutputClaim ClaimTypeReferenceId="email" />
+          </OutputClaims>
+          <ValidationTechnicalProfiles>
+            <ValidationTechnicalProfile ReferenceId="login-NonInteractive" />
+          </ValidationTechnicalProfiles>
+          <UseTechnicalProfileForSessionManagement ReferenceId="SM-AAD" />
+        </TechnicalProfile>
+        <!-- End of changes -->
+
+        <TechnicalProfile Id="login-NonInteractive">
           <Metadata>
             <Item Key="client_id">ProxyIdentityExperienceFrameworkAppId</Item>
             <Item Key="IdTokenAudience">IdentityExperienceFrameworkAppId</Item>
@@ -37,8 +206,44 @@
 
   </ClaimsProviders>
 
-    <!--UserJourneys>
+  <UserJourneys>
 	
-	</UserJourneys-->
+    <!-- Added the line(s) referring the following URL
+          https://docs.microsoft.com/ja-jp/azure/active-directory-b2c/active-directory-b2c-rest-api-step-custom#add-an-orchestration-step
+          https://docs.microsoft.com/ja-jp/azure/active-directory-b2c/userjourneys
+      -->
+    <UserJourney Id="SignInOnly">
+      <OrchestrationSteps>
+      
+        <OrchestrationStep Order="1" Type="CombinedSignInAndSignUp" ContentDefinitionReferenceId="api.signuporsignin">
+          <ClaimsProviderSelections>
+            <ClaimsProviderSelection ValidationClaimsExchangeId="LocalAccountSigninEmailExchange" />
+          </ClaimsProviderSelections>
+          <ClaimsExchanges>
+            <ClaimsExchange Id="LocalAccountSigninEmailExchange" TechnicalProfileReferenceId="My-SelfAsserted-LocalAccountSignin-Email" />
+          </ClaimsExchanges>
+        </OrchestrationStep>
+
+        <!-- This step reads any user attributes that we may not have received when authenticating using ESTS so they can be sent 
+          in the token. -->
+        <OrchestrationStep Order="2" Type="ClaimsExchange">
+          <ClaimsExchanges>
+            <ClaimsExchange Id="AADUserReadWithObjectId" TechnicalProfileReferenceId="AAD-UserReadUsingObjectId" />
+          </ClaimsExchanges>
+        </OrchestrationStep>
+
+        <OrchestrationStep Order="3" Type="ClaimsExchange">
+          <ClaimsExchanges>
+            <ClaimsExchange Id="ValidateWithRestAPI" TechnicalProfileReferenceId="AzureFunctions-CheckExtensionAttributeWebHook" />
+          </ClaimsExchanges>
+        </OrchestrationStep>
+
+        <OrchestrationStep Order="4" Type="SendClaims" CpimIssuerTechnicalProfileReferenceId="JwtIssuer" />
+
+      </OrchestrationSteps>
+      <ClientDefinition ReferenceId="DefaultWeb" />
+    </UserJourney>
+
+	</UserJourneys>
 
 </TrustFrameworkPolicy>
